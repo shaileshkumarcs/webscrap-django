@@ -24,7 +24,7 @@ class ScrapIndeed(TemplateView):
         # browser = webdriver.PhantomJS()
         browser = webdriver.Chrome()
         # browser.get('https://stackoverflow.com/')
-        browser.get('https://www.indeed.co.in/jobs?q=php%20developer&l=Bengaluru%2C%20Karnataka&vjk=5986e28c994a6e6e')
+        browser.get('https://www.indeed.co.in/jobs?q=php%20developer&l=Bengaluru%2C%20Karnataka&vjk=81ac24c72ac8aad6')
         html = browser.page_source
         soup = BeautifulSoup(html, 'lxml')
 
@@ -38,24 +38,39 @@ class ScrapIndeed(TemplateView):
         jobdetails = ''
         summ = soup.find('div', {'id': 'vjs-desc'})
         for su in summ.findAll('p'):
-            jobdetails += (su.text) #.encode('utf-8').strip()
+            jobdetails += ' '+su.findChildren('b').text
+            ul = summ.find('ul')
+            if ul:
+                for li in ul.findAll('li'):
+                    jobdetails += ' ' + (li.text)
+            jobdetails += ' '+ (su.text) #.encode('utf-8').strip()
+
+        data = (soup.find('span', {'id': 'vjs-loc'}).text).split(',')
+
 
         writer.writerow(
             [soup.find('div',{'id':'vjs-jobtitle'}).text,
              soup.find('span',{'id':'vjs-cn'}).text,
-             soup.find('span',{'id':'vjs-loc'}).text,
-             soup.find('span',{'id':'vjs-loc'}).text,
+             data[0],
+             data[1],
              jobdetails,
              'Experience',
              'Education'])
+
+
+
         # print(soup.find('div',{'id':'vjs-jobtitle'}).text)
         # print(soup.find('span',{'id':'vjs-cn'}).text)
         # print(soup.find('span',{'id':'vjs-loc'}).text)
         # summ = soup.find('div', {'id': 'vjs-desc'})
         # for su in summ.findAll('p'):
+        #     ul = summ.find('ul')
+        #     for li in ul.findAll('li'):
+        #         print((li.text).encode('utf-8').strip())
         #     print((su.text).encode('utf-8').strip())
-
-
+        #
+        #
+        # return HttpResponse("HELLO")
         return response
 
 
